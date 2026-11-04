@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "goodnotes-inkeye-mcp"
+version = "0.3.0"
+description = "MCP server for reading and rendering a live Goodnotes library"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "mcp>=1.12,<2",
+  "gnreader @ git+https://github.com/oenderg/gnreader.git",
+  "pypdfium2>=4.0",
+  "Pillow>=10.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+goodnotes-inkeye-mcp = "goodnotes_inkeye_mcp.server:main"
+
+[tool.setuptools]
+packages = ["goodnotes_inkeye_mcp"]

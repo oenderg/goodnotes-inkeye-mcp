@@ -1,0 +1,14 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+cache/
+out/
+*.png
+*.goodnotes
+*.pdf
+.DS_Store
