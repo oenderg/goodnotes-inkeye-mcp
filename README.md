@@ -14,8 +14,12 @@ runtime.
    projection into a writable snapshot. The Goodnotes container is only read.
 2. `gnlive` loads the page's imported PDF/image background and decodes the live
    page records with `gnreader`.
-3. Strokes, text, images and fills are drawn in `NotesZIndex` order.
-   Highlighters use a per-channel multiply and preserve ink.
+3. Strokes, text and `f1` images are drawn in `NotesZIndex` order.
+   Highlighters use a per-channel multiply and preserve ink; auto-straightened
+   bars get round caps and compact scribbles are filled solid. Missing image
+   attachments yield an `image missing` warning instead of a failed page.
+   `FillShapeItem` is decoded but not drawn yet; it yields a `fill shape`
+   warning.
 4. The PNG and a JSON sidecar are cached under `$GNREADER_HOME` or
    `$GOODNOTES_INKEYE_HOME`; the cache is capped and pruned.
 
@@ -30,7 +34,7 @@ runtime.
 
 ## Install
 
-Private repository:
+From GitHub:
 
 ```sh
 python -m venv ~/.local/share/goodnotes-inkeye/venv
@@ -95,8 +99,14 @@ Ambiguous input returns a candidate list instead of guessing. Page numbers are
 
 - The Goodnotes container and backup folder are never modified.
 - Snapshots and render caches are the only writes; they live under the
-  configured home, never inside the package or the container.
-- No network calls at runtime.
+  configured home (`~/.cache/gnreader` by default), never inside the package or
+  the container.
+- That directory holds a **copy of your Goodnotes database and rendered images
+  of your notebook pages**. Treat it like the notebooks themselves, and delete
+  it to wipe the cache.
+- The server itself makes no network calls. Page images and text it returns are
+  sent to whichever AI client you connect it to, under that client's privacy
+  terms.
 - OCR is MyScript output and may be wrong, incomplete or stale. Use
   `get_page_text` for exact typed items and `get_page_image` to verify ink.
 
@@ -106,13 +116,19 @@ The full list comes from `gnreader.capabilities()` and is printed by
 `server_status()`.
 
 - No write support.
-- Legacy item kinds `f3`, `f4`, `f6`, `f22` are unsupported.
-- Nexus/Yjs layout is approximate; shape fill/stroke, math and sticky notes are
-  partial.
+- Legacy item kinds `f3`, `f4` and `f6` are unsupported.
+- Nexus/Yjs layout is approximate; math items are attachment/placeholder only.
+- Shape fill/stroke, sticky notes and elbow/hobby connectors are rendered for
+  the calibrated item set. Sticker colour bodies, pattern tape and type-5
+  grainy pencil are also drawn; hobby uses a Hobby spline.
+- The live renderer does not draw fills yet (`fill shape` warning). Live `f1`
+  images are supported, including rotated images; missing/unreadable
+  attachments warn as `image missing`.
 - Whiteboard notebooks have no page canvas and render blank.
 - Missing built-in/sticker backgrounds render white.
 - Eraser masks are decoded but not applied.
-- Highlighter bar ends are square.
+- Highlighter straight bars now have round caps; compact freehand marks use a
+  solid disc union. Freehand ends follow their stored path.
 - Cache entries are invalidated by package version and installed-renderer code
   fingerprint.
 
@@ -124,4 +140,12 @@ the old modules in memory.
 
 ## License
 
-Private repository. All rights reserved; no license is granted.
+Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE): you may
+use, modify and share it for noncommercial purposes. Commercial use needs a
+separate licence from the author.
+
+Required Notice: Copyright (c) 2026 oenderg (https://github.com/oenderg)
+
+---
+
+Unaffiliated with Goodnotes Limited. "Goodnotes" is their trademark; it is used here only to describe compatibility.
